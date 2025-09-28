@@ -132,20 +132,35 @@ public class ComprobanteDAO implements ComprobanteInterface {
         }
         return codigo;
     }
-    
-    
+
     @Override
-        public int obtenerUltimoNumero(String tipo) {
+    public int obtenerUltimoNumero(String tipo) {
         int ultimo = 0;
         String sql = "SELECT Numero FROM Comprobante WHERE Tipo=? ORDER BY IdComprobante DESC LIMIT 1";
-        try (Connection conn = cnx.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = cnx.conectar(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tipo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String numero = rs.getString("Numero");
-                    // Ejemplo: B-000015 → obtener 15
-                    ultimo = Integer.parseInt(numero.split("-")[1]);
+
+                    if (numero != null && !numero.trim().isEmpty()) {
+                        if (numero.contains("-")) {
+                            // Ejemplo: B-000015 → obtiene "000015"
+                            String[] partes = numero.split("-");
+                            if (partes.length > 1) {
+                                ultimo = Integer.parseInt(partes[1]);
+                            } else {
+                                System.err.println("Formato inesperado en Numero (falta parte después del guion): " + numero);
+                            }
+                        } else {
+                            // Caso sin guion: "000015"
+                            try {
+                                ultimo = Integer.parseInt(numero);
+                            } catch (NumberFormatException e) {
+                                System.err.println("Formato inválido en Numero: " + numero);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -153,13 +168,12 @@ public class ComprobanteDAO implements ComprobanteInterface {
         }
         return ultimo;
     }
-        
-         @Override
+
+    @Override
     public int obtenerUltimoNumero1(String tipo) {
         int ultimo = 0;
         String sql = "SELECT Numero FROM Comprobante WHERE Tipo=? ORDER BY IdComprobante DESC LIMIT 1";
-        try (Connection conn = cnx.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = cnx.conectar(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tipo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -173,6 +187,5 @@ public class ComprobanteDAO implements ComprobanteInterface {
         }
         return ultimo;
     }
-        
 
 }

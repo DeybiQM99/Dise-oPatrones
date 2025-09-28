@@ -63,23 +63,21 @@ public class femitirpago extends javax.swing.JInternalFrame {
     }
 
     private void generarNumeroYCodigo() {
-    String tipo = cbtipo.getSelectedItem().toString();
+        String tipo = cbtipo.getSelectedItem().toString();
 
-    if (tipo.equalsIgnoreCase("Boleta") || tipo.equalsIgnoreCase("Factura")) {
-        ComprobanteNegocio negocio = new ComprobanteNegocio();
-        Comprobante generado = negocio.generarAutomatico(tipo);
+        if (tipo.equalsIgnoreCase("Boleta") || tipo.equalsIgnoreCase("Factura")) {
+            ComprobanteNegocio negocio = new ComprobanteNegocio();
+            Comprobante generado = negocio.generarAutomatico(tipo);
 
-        // Mostramos en los campos
-        txtnumerocomprobante.setText(generado.getNumero());
-        txtcodigo.setText(generado.getCodigo());
-    } else {
-        txtnumerocomprobante.setText("");
-        txtcodigo.setText("");
+            // Mostramos en los campos
+            txtnumerocomprobante.setText(generado.getNumero());
+            txtcodigo.setText(generado.getCodigo());
+        } else {
+            txtnumerocomprobante.setText("");
+            txtcodigo.setText("");
+        }
     }
-    }
-    
-    
-    
+
     private void generarComprobanteAutomatico1() {
         ComprobanteNegocio negocioComp = new ComprobanteNegocio();
     }
@@ -897,7 +895,15 @@ public class femitirpago extends javax.swing.JInternalFrame {
     private void txtigvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtigvActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtigvActionPerformed
-
+    // Método auxiliar
+    private double parseDecimal(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            return 0d;
+        }
+        // Normalizar coma a punto
+        String normalizado = texto.trim().replace(",", ".");
+        return Double.parseDouble(normalizado);
+    }
     private void btbemitirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btbemitirActionPerformed
         try {
             Pedido nuevoPedido = new Pedido();
@@ -912,13 +918,13 @@ public class femitirpago extends javax.swing.JInternalFrame {
                 return;
             }
 
-
             DefaultTableModel model = (DefaultTableModel) tblProductos.getModel();
             for (int i = 0; i < model.getRowCount(); i++) {
                 int idProducto = Integer.parseInt(model.getValueAt(i, 0).toString());
                 int cantidad = Integer.parseInt(model.getValueAt(i, 2).toString());
-                double precioUnitario = Double.parseDouble(model.getValueAt(i, 3).toString());
-                double subtotal = Double.parseDouble(model.getValueAt(i, 4).toString());
+                double precioUnitario = parseDecimal(model.getValueAt(i, 3).toString());
+                double subtotal = parseDecimal(model.getValueAt(i, 4).toString());
+
                 PedidoDetalle detalle = new PedidoDetalle();
                 detalle.setIdPedido(idPedido);
                 detalle.setIdProducto(idProducto);
@@ -931,6 +937,7 @@ public class femitirpago extends javax.swing.JInternalFrame {
 
                 new DetallepedidoNegocio().insertar(detalle);
             }
+
             Cliente cli = new Cliente();
             cli.setNombre(txtnombre.getText());
             cli.setApellido(txtapellidos.getText());
@@ -948,7 +955,7 @@ public class femitirpago extends javax.swing.JInternalFrame {
 
             Pago pago = new Pago();
             pago.setMetodo(cbmetodo.getSelectedItem().toString());
-            pago.setMonto(Double.parseDouble(txtmonto.getText()));
+            pago.setMonto(parseDecimal(txtmonto.getText()));  // <--- corregido
             pago.setFecha(java.sql.Date.valueOf(txtfecha.getText()));
             pago.setHora(java.sql.Time.valueOf(txthora.getText()));
 
@@ -966,9 +973,9 @@ public class femitirpago extends javax.swing.JInternalFrame {
             comp.setCodigo(txtcodigo.getText());
             comp.setFecha(java.sql.Date.valueOf(txtfecha1.getText()));
             comp.setHora(java.sql.Time.valueOf(txthora1.getText()));
-            comp.setSubtotal(Double.parseDouble(txtsubtotal.getText()));
-            comp.setIgv(Double.parseDouble(txtigv.getText()));
-            comp.setTotal(Double.parseDouble(txttotal.getText()));
+            comp.setSubtotal(parseDecimal(txtsubtotal.getText())); // <--- corregido
+            comp.setIgv(parseDecimal(txtigv.getText()));           // <--- corregido
+            comp.setTotal(parseDecimal(txttotal.getText()));       // <--- corregido
             comp.setIdCliente(idCliente);
             comp.setIdPago(idPago);
             comp.setIdpedido(idPedido);
@@ -980,6 +987,7 @@ public class femitirpago extends javax.swing.JInternalFrame {
             ((DefaultTableModel) tblProductos.getModel()).setRowCount(0);
             generarPedidoAutomatico();
             actualizarResumen();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error en Guardar Todo: " + e.getMessage());
         }

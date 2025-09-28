@@ -15,7 +15,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class conexion {
-    private static final String URL = "jdbc:postgresql://localhost:5432/fastfood";
+    private static final String URL = "jdbc:postgresql://localhost:5432/Proyectodediseno2025";
     private static final String USER = "postgres";
     private static final String PASS = "Leo240705";
     private static final String DRIVER = "org.postgresql.Driver";
