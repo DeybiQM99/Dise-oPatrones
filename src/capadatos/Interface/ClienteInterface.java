@@ -12,11 +12,16 @@ import java.util.List;
  * @author carlo
  */
 public interface ClienteInterface {
-    
+
     public List<Cliente> listar(String texto);
+
     public boolean insertar(Cliente cli);
-    public boolean actualizar(Cliente cli) ;
+
+    public boolean actualizar(Cliente cli);
+
     public boolean eliminar(Cliente cli);
+
     public List<Cliente> seleccionar();
-       public int insertarID(Cliente cli);
+
+    public int insertarID(Cliente cli);
 }

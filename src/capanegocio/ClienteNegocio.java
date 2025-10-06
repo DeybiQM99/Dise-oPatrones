@@ -4,22 +4,32 @@
  */
 package capanegocio;
 
-import capadatos.ClienteDAO;
+import capadatos.Interface.ClienteInterface;
+import capadatos.factory.DAOFactory;
+import capadatos.factory.DBType;
+
 import capaentidades.Cliente;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author carlo
- */
 public class ClienteNegocio {
-        private final ClienteDAO datos;
+
+    private final ClienteInterface datos;
     private DefaultTableModel modelotabla;
 
+    /**
+     * Constructor por defecto: usa la fábrica POSTGRES
+     */
     public ClienteNegocio() {
-        this.datos = new ClienteDAO();
+        this(DAOFactory.getFactory(DBType.POSTGRES));
+    }
+
+    /**
+     * Constructor con inyección de fábrica (útil para tests o cambiar de motor)
+     */
+    public ClienteNegocio(DAOFactory factory) {
+        this.datos = factory.getClienteDAO();
     }
 
     // Listar clientes (con búsqueda por nombre o dni)
@@ -74,9 +84,9 @@ public class ClienteNegocio {
             return "❌ Error al eliminar cliente";
         }
     }
-    
-    
-     public int insertarID(Cliente cli) {
+
+    // Insertar y devolver ID generado
+    public int insertarID(Cliente cli) {
         return datos.insertarID(cli);
     }
 }

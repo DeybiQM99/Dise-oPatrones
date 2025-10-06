@@ -14,8 +14,14 @@ import java.util.List;
  * @author carlo
  */
 public interface DetalleInterface {
-        public List<PedidoDetalle> listar(String texto);
+
+    public List<PedidoDetalle> listar(String texto);
+
     public boolean insertar(PedidoDetalle detalle);
+
     public boolean actualizar(PedidoDetalle detalle);
+
     public boolean eliminar(PedidoDetalle detalle);
+
+    boolean insertardetalle(PedidoDetalle d);
 }

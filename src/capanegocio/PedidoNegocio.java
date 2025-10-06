@@ -4,22 +4,34 @@
  */
 package capanegocio;
 
-import capadatos.PedidoDAO;
+import capadatos.Interface.PedidoInterface;
+import capadatos.factory.DAOFactory;
+import capadatos.factory.DBType;
+
 import capaentidades.Pedido;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.*;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-
 public class PedidoNegocio {
-      private final PedidoDAO datos;
+
+    private final PedidoInterface datos;
     private DefaultTableModel modelotabla;
 
+    /**
+     * Constructor por defecto: usa la fábrica POSTGRES
+     */
     public PedidoNegocio() {
-        this.datos = new PedidoDAO();
+        this(DAOFactory.getFactory(DBType.POSTGRES));
+    }
+
+    /**
+     * Constructor con inyección de fábrica (tests / otros motores)
+     */
+    public PedidoNegocio(DAOFactory factory) {
+        this.datos = factory.getPedidoDAO();
     }
 
     public DefaultTableModel listar(String texto) {
@@ -35,8 +47,8 @@ public class PedidoNegocio {
         for (Pedido item : lista) {
             fila[0] = Integer.toString(item.getIdPedido());
             fila[1] = item.getNumeroDePedido();
-            fila[2] = item.getHora().toString();   // 👈 convertir Time a String (ej: "14:30:00")
-          fila[3] = item.getFecha().toString(); 
+            fila[2] = item.getHora().toString();
+            fila[3] = item.getFecha().toString();
             fila[4] = item.getEstado();
             this.modelotabla.addRow(fila);
         }
@@ -44,63 +56,57 @@ public class PedidoNegocio {
     }
 
     public String insertar(Pedido p) {
-        if (datos.insertar(p)) {
-            return "Registro insertado exitosamente";
-        } else {
-            return "Registro insertado no exitoso";
-        }
+        return datos.insertar(p)
+                ? "Registro insertado exitosamente"
+                : "Registro insertado no exitoso";
     }
 
     public String actualizar(Pedido p) {
-        if (datos.actualizar(p)) {
-            return "Actualizado exitosamente";
-        } else {
-            return "Actualización no exitosa";
-        }
+        return datos.actualizar(p)
+                ? "Actualizado exitosamente"
+                : "Actualización no exitosa";
     }
 
     public String eliminar(Pedido p) {
-        if (datos.eliminar(p)) {
-            return "Eliminado exitosamente";
-        } else {
-            return "Eliminación no exitosa";
-        }
+        return datos.eliminar(p)
+                ? "Eliminado exitosamente"
+                : "Eliminación no exitosa";
     }
-    
+
+    /**
+     * Inserta generando un pedido automático desde el DAO
+     */
     public String insertarAutomatico(Pedido p) {
-        Pedido nuevo = datos.generarPedidoAutomatico(); 
-        nuevo.setEstado(p.getEstado());                 
+        Pedido nuevo = datos.generarPedidoAutomatico(); // método en el DAO/Interface
+        nuevo.setEstado(p.getEstado());
 
-        if (datos.insertar(nuevo)) {
-            return "Pedido insertado exitosamente con número: " + nuevo.getNumeroDePedido();
-        } else {
-            return "Error al insertar pedido";
-        }
+        return datos.insertar(nuevo)
+                ? "Pedido insertado exitosamente con número: " + nuevo.getNumeroDePedido()
+                : "Error al insertar pedido";
     }
-  // Método para generar un Pedido automático
-    public Pedido generarAutomatico() {
-        Pedido p = new Pedido();
 
-        // Generar número de pedido único: PED + fecha + hora
+    /**
+     * Genera un pedido automático desde la capa de negocio (opcional)
+     */
+    public Pedido generarAutomatico() {
+        Pedido ped = new Pedido();
+
+        // Generar número único: PED + yyyyMMddHHmmss
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String numero = "PED" + sdf.format(new java.util.Date());
-        p.setNumeroDePedido(numero);
+        ped.setNumeroDePedido(numero);
 
         // Fecha y hora actuales
         java.util.Date ahora = new java.util.Date();
-        p.setFecha(new java.sql.Date(ahora.getTime()));
-        p.setHora(new java.sql.Time(ahora.getTime()));
+        ped.setFecha(new java.sql.Date(ahora.getTime()));
+        ped.setHora(new java.sql.Time(ahora.getTime()));
 
         // Estado por defecto
-        p.setEstado("En preparacion");
+        ped.setEstado("En preparacion");
+        return ped;
+    }
 
-        return p;
-    }
-    
     public int insertarID(Pedido p) {
-    int id = datos.insertarID(p);
-    return id; 
+        return datos.insertarID(p);
     }
-    
-   
 }

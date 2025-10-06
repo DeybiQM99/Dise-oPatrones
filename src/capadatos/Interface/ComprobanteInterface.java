@@ -11,10 +11,16 @@ import capaentidades.Comprobante;
  * @author carlo
  */
 public interface ComprobanteInterface {
-     public int insertarID(Comprobante comp);
-      public boolean insertar(Comprobante c);
-       public String generarNumero();
-       public String generarCodigo();
-       public int obtenerUltimoNumero(String tipo);
-       public int obtenerUltimoNumero1(String tipo);
+
+    public int insertarID(Comprobante comp);
+
+    public boolean insertar(Comprobante c);
+
+    public String generarNumero();
+
+    public String generarCodigo();
+
+    public int obtenerUltimoNumero(String tipo);
+
+    public int obtenerUltimoNumero1(String tipo);
 }

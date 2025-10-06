@@ -12,9 +12,16 @@ import java.util.List;
  * @author carlo
  */
 public interface ProductoInterface {
+
     public List<Producto> listar(String texto);
+
     public boolean insertar(Producto E);
-     public boolean actualizar(Producto E);
-     public boolean eliminar(Producto E);
-      public List<Producto> seleccionar1();
+
+    public boolean actualizar(Producto E);
+
+    public boolean eliminar(Producto E);
+
+    public List<Producto> seleccionar1();
+
+    List<Producto> listarTodos();
 }

@@ -4,18 +4,32 @@
  */
 package capanegocio;
 
-import capadatos.PagoDAO;
+import capadatos.Interface.PagoInterface;
+import capadatos.factory.DAOFactory;
+import capadatos.factory.DBType;
+
 import capaentidades.Pago;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class PagoNegocio {
-    private final PagoDAO datos;
+
+    private final PagoInterface datos;
     private DefaultTableModel modelotabla;
 
+    /**
+     * Constructor por defecto: usa la fábrica POSTGRES
+     */
     public PagoNegocio() {
-        this.datos = new PagoDAO();
+        this(DAOFactory.getFactory(DBType.POSTGRES));
+    }
+
+    /**
+     * Constructor con inyección de fábrica (para tests o cambiar DB)
+     */
+    public PagoNegocio(DAOFactory factory) {
+        this.datos = factory.getPagoDAO();
     }
 
     public DefaultTableModel listar(String texto) {
@@ -32,8 +46,8 @@ public class PagoNegocio {
             fila[0] = Integer.toString(item.getIdPago());
             fila[1] = item.getMetodo();
             fila[2] = Double.toString(item.getMonto());
-            fila[3] = item.getFecha().toString(); // java.sql.Date → String
-            fila[4] = item.getHora().toString();  // java.sql.Time → String
+            fila[3] = item.getFecha().toString();
+            fila[4] = item.getHora().toString();
             this.modelotabla.addRow(fila);
         }
         return modelotabla;
@@ -62,8 +76,8 @@ public class PagoNegocio {
             return "Error: el pago no pudo eliminarse";
         }
     }
-    
-       public int insertarID(Pago p) {
+
+    public int insertarID(Pago p) {
         return datos.insertarID(p);
     }
 }

@@ -4,41 +4,50 @@
  */
 package capanegocio;
 
-import capadatos.CategoriaDAO;
-import capadatos.TipoUsuarioDAO;
+import capadatos.Interface.CategoriaInterface;
+import capadatos.factory.DAOFactory;
+import capadatos.factory.DBType;
+
 import capaentidades.Categoria;
-import capaentidades.TipoUsuario;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author carlo
- */
 public class CategoriaNegocio {
 
-    private final CategoriaDAO datos;
+    private final CategoriaInterface datos;
     private DefaultTableModel modelotabla;
 
+    /**
+     * Constructor por defecto: usa la fábrica POSTGRES
+     */
     public CategoriaNegocio() {
-        this.datos = new CategoriaDAO();
+        this(DAOFactory.getFactory(DBType.POSTGRES));
+    }
+
+    /**
+     * Constructor inyectando la fábrica (útil para pruebas o cambiar motor)
+     */
+    public CategoriaNegocio(DAOFactory factory) {
+        this.datos = factory.getCategoriaDAO();
     }
 
     public DefaultTableModel listar(String texto) {
         List<Categoria> lista = new ArrayList<>();
-         lista.addAll(datos.listar(texto));
+        lista.addAll(datos.listar(texto));
+
         String[] columnas = new String[]{"Id categoria", "Nombre"};
         String[] fila = new String[2];
         this.modelotabla = new DefaultTableModel(null, columnas);
+
         for (Categoria item : lista) {
-        fila[0] = Integer.toString(item.getIdcategoria());
-        fila[1] = item.getNombre();
-        this.modelotabla.addRow(fila);
+            fila[0] = Integer.toString(item.getIdcategoria());
+            fila[1] = item.getNombre();
+            this.modelotabla.addRow(fila);
         }
         return modelotabla;
     }
-    
+
     public String insertar(Categoria c) {
         if (datos.insertar(c)) {
             return "Registro insertado exitosamente";
